@@ -7,6 +7,8 @@ class Bot:
         print("Hello World!", config)
         self.config = config
         self.prev_xy = None
+        self.toggle = False
+        self.sensitivity = 2.5
 
     def move(self, paddle, ball):
         # This prints the position of your paddle and the ball to the bot terminal.
@@ -30,10 +32,11 @@ class Bot:
                 current_y = ball["y"]
                 current_x = ball["x"]
                 slope = (current_y - self.prev_xy[1]) / (current_x - self.prev_xy[0]) # only zero if the ball isn't moving - hopefully not true ;)
-                intercept = slope*(-35 - current_x) + current_y
+                intercept_x = -35 if self.config["paddle"] == "west" else 35
+                intercept = slope*(intercept_x - current_x) + current_y
                 target_y = intercept
-                if( current_x - self.prev_xy[0] > -1): # moving slow
-                    target_x = target_x + 1
+                if( abs(current_x - self.prev_xy[0]) < self.sensitivity): # moving fast
+                    target_x = target_x + 1 if self.config["paddle"] == "west" else target_x - 1
             else:
                 target_y = 0
                 target_x = -35
@@ -42,13 +45,16 @@ class Bot:
 
 
         ret = "none"
-        if(paddle["y"] - target_y > 1):
-            ret = "south"
-        elif(paddle["y"] - target_y < -1):
-            ret = "north"
-
-        if ret == "none": # no need to move north/south
-            ret = "west" if target_x > paddle["x"] else "east"
+        if(self.toggle and target_x != paddle["x"]):
+            ret = "west" if target_x < paddle["x"] else "east"
+        
+        if(ret == "none"):
+            if(paddle["y"] - target_y > self.sensitivity):
+                ret = "south"
+            elif(paddle["y"] - target_y < -self.sensitivity):
+                ret = "north"
+            
+        #self.toggle = not self.toggle
         return ret
 
     def end(self, paddle, ball):
