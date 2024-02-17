@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "name": "PythonBot",
+  "avatar": "aaaaGaaiaGyWuciaa",
+  "preferredColor": "vermilion",
+  "language": "python.3",
+  "game": "table-tennis",
+  "run": "python3 -u ./main.py"
+}
